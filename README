@@ -3,6 +3,8 @@ The issue that single-threaded-ccl addresses is as follows.
 CCL by default starts ancillary threads early during initialization,
 which makes any subsequent attempt to use fork (without a prompt exec
 as in run-program) almost guaranteed to lead to massive instability.
+See my blog post:
+	http://fare.livejournal.com/148185.html
 
 However, I have been maintaining this "single-threaded CCL"
 modification that can create an image of CCL that doesn't start these
@@ -19,56 +21,4 @@ concurrency, isolating semi-trusted C libraries, etc.
 For the record, Gary Byers has expressed his disinterest in offering
 and maintaining an option for single-threaded startup in the upstream
 CCL, even when I proposed that I could do the porting and maintaining
-myself. He could conceivably be convinced otherwise if explicitly paid
-to do the work.
-
-
-The reason that fork doesn't marry well with threads is that when you
-fork, the child process will have only one active thread (a copy of
-the one that forked) in an address space that is a copy (on write) of
-the memory of the parent process; therefore, all the data structures
-that were being shared by the current thread with other threads may be
-in whatever transient state these threads may have been putting them
-at the moment the kernel copied the address space (which may or may
-not be atomic when multiprocessors are involved). The consequence is
-that unless the forking thread took care to hold a lock on every
-single shared data-structure that the child might possibly need to
-use, any of these data-structures may be forever in an unstable state
-unusable by the child.
-
-Now, the problem is solvable in theory, and some smart ass may even
-point you at an interface function meant to help you solve it:
-pthread_atfork. But the existence of this function notwithstanding,
-unless you and all the authors of all the libraries you use took care
-of using this interface and debugging its use, then it is
-useless. Worse, not only does using this interface or the equivalent
-requires much cleverness to do it correctly without possible
-deadlock-inducing dependency cycle between the locks involved, it
-requires that you should not only possess a jolly good understanding
-of all concurrency issues throughout the code.  Worse even, you will
-have to maintain that deep understanding as your code evolves, and as
-the libraries you use evolve. unhappily, deep concurrency hacker as
-you might be, most people aren't and won't bother to maintain their
-code so that your job be possible at all. And if you don't even have
-access to their source code, you better have a great relation with the
-authors and the authors better be just as madly clever as you are, or
-can forget getting this to work. Finally, even if you do succeed at
-getting this locking to work, your address space will be filled with
-garbage half-written data-structures written by other threads that you
-may have to clean up if you want to reclaim the space resource.
-
-So it's possible in theory, but in practice it's way more trouble than
-any sane programmer would care for, and then some.
-
-
-In the end, if you use fork and want to continue useful computations
-in the child, you must either do it before any other thread is
-started, after all other threads have exited, more generally after
-synchronizing with all other threads so they are in a known stable
-state. Alternatively, you might not care at all about computing in the
-child with the data-structures that these threads may be accessing:
-you might be about to exec without the need for any of those
-datastructures to setup the call to execve, or you might be about to
-dump a core in the middle of the (possibly suspect) computation for
-purely analytic purposes without the need to resume computation
-afterwards.
+myself.
