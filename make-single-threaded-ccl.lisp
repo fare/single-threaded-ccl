@@ -10,18 +10,23 @@
 #|
 This is a simple patch to allow Clozure CL (CCL) to run in single-threaded mode.
 
-It was last tested to run with this checkout of CCL:
-	http://svn.clozure.com/publicsvn/openmcl/branches/working-0711/ccl
+It was last tested to run with this checkout of CCL, revision 13568 (same as 13679).
+	http://svn.clozure.com/publicsvn/openmcl/branches/qres
 
 This is free software, available under the same license as CCL.
 
-Note: Was submitted for inclusion in the upstream CCL distribution.
+Note: This was submitted for inclusion in the upstream CCL distribution.
 However, Gary Byers is unwilling to include and maintain this patch.
 
 To create a single-threaded ccl, you may:
 	${CCL_DEFAULT_DIRECTORY}/lx86cl64 --load make-single-threaded-ccl
 To test that indeed you can run code single-threaded mode, you may:
 	./single-threaded-ccl --eval '(progn (format t "~S" ccl::*application*) (ccl::show-processes) (ccl:quit))'
+
+Note that to be able to use many of the dynamically loaded features of CCL,
+you will need to either put your single-threaded-ccl in the same directory
+as the rest of CCL and use it from there, or you will need to
+	export CCL_DEFAULT_DIRECTORY=/path/to/ccl
 |#
 
 (in-package :ccl)
