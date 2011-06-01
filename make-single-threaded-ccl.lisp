@@ -2,7 +2,7 @@
 ;;;                                                                  ;;;
 ;;; Free Software under the GNU LLGPL 2.1 (same as CCL itself)       ;;;
 ;;;                                                                  ;;;
-;;; Copyright (c) 2008-2009 ITA Software, Inc.  All rights reserved. ;;;
+;;; Copyright (c) 2008-2011 ITA Software, Inc.  All rights reserved. ;;;
 ;;;                                                                  ;;;
 ;;; Original authors: Francois-Rene Rideau                           ;;;
 ;;;                                                                  ;;;
@@ -34,17 +34,17 @@ as the rest of CCL and use it from there, or you will need to
 (defun finish-outputs ()
   (finish-output *standard-output*)
   (finish-output *error-output*)
-  (finish-output ccl::*terminal-output*)
+  (finish-output *terminal-output*)
   (finish-output *trace-output*)
-  (ccl::housekeeping))
+  (housekeeping))
 
 (defun show-processes ()
-  (let ((p (ccl:all-processes)))
+  (let ((p (all-processes)))
     (format t "~&Total number of running lisp processes: ~d~%~W~%" (length p) p)
     (finish-outputs)))
 
 (defun flushing-rep ()
-  (ccl::print-listener-prompt *standard-output*)
+  (print-listener-prompt *standard-output*)
   (finish-outputs)
   (let* ((eof '#.'#:eof)
          (sexp (read *standard-input* nil eof nil)))
@@ -60,23 +60,27 @@ as the rest of CCL and use it from there, or you will need to
     (loop (flushing-rep))))
 
 (defun single-threaded-toplevel ()
-  (ccl::initialize-interactive-streams)
+  (housekeeping)
   ;;(show-processes)
-  (flushing-repl)
-  (ccl::quit))
+  ;;(flushing-repl)
+  (listener-function)
+  (quit 0))
 
-(defclass single-threaded-lisp-development-system (ccl::lisp-development-system)
+(defclass single-threaded-lisp-development-system (lisp-development-system)
     ())
 
-(defmethod ccl::toplevel-function ((a single-threaded-lisp-development-system) init-file)
-  (ccl::startup-ccl (and ccl::*load-lisp-init-file* init-file))
-  (funcall (or (repl-function-name a) 'single-threaded-toplevel)))
+(defmethod repl-function-name ((a single-threaded-lisp-development-system))
+  'single-threaded-toplevel)
 
+(defmethod toplevel-function ((a single-threaded-lisp-development-system) init-file)
+  (%set-toplevel (or (repl-function-name a) 'single-threaded-toplevel))
+  (startup-ccl (and *load-lisp-init-file* init-file))
+  (toplevel))
 
-(defparameter ccl::*application* (make-instance 'single-threaded-lisp-development-system))
+(defparameter *application* (make-instance 'single-threaded-lisp-development-system))
 
 (in-package :cl-user)
 
-;;(ccl::save-application "single-threaded-ccl" :toplevel-function #'ccl::single-threaded-toplevel :prepend-kernel t)
+;;(save-application "single-threaded-ccl" :toplevel-function #'single-threaded-toplevel :prepend-kernel t)
 
-(ccl::save-application "single-threaded-ccl" :prepend-kernel t)
+(save-application "single-threaded-ccl" :prepend-kernel t)
