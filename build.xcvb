@@ -1,0 +1,4 @@
+(module
+ (:fullname "single-threaded-ccl"
+  :depends-on ((:when (:featurep :clozure) "single-threaded-ccl"))
+  :supersedes-asdf ("single-threaded-ccl")))

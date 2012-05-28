@@ -1,24 +1,74 @@
-The issue that single-threaded-ccl addresses is as follows.
+SINGLE-THREADED-CCL
+===================
+
+A simple patch to allow Clozure CL (CCL) to run in single-threaded mode.
+
+This is free software, available under the same license as CCL, LLGPL 2.1.
+
+
+Using It
+--------
+
+To create a single-threaded ccl, you may::
+
+	${CCL_DEFAULT_DIRECTORY}/lx86cl64 --load make-single-threaded-ccl
+
+
+To test that indeed you can run code single-threaded mode, you may::
+
+	./single-threaded-ccl --eval '(progn (format t "~S" ccl::*application*) (ccl::show-processes) (ccl:quit))'
+
+It your CCL is successfully single-threaded, only one process will show.
+
+
+Note that to be able to use many of the dynamically loaded features of CCL,
+you will need to either put your single-threaded-ccl in the same directory
+as the rest of CCL and use it from there, or you will need to::
+
+	export CCL_DEFAULT_DIRECTORY=/path/to/original-ccl
+
+
+If you build with ASDF, you may also depend on the system single-threaded-ccl,
+and when you next save an image, it will start single-threaded.
+
+
+Last Tested
+-----------
+
+It was last tested to run with this checkout of CCL, revision 15393.
+        http://svn.clozure.com/publicsvn/openmcl/trunk/linuxx86/ccl
+
+
+Won't Make It Upstream
+----------------------
+
+This was submitted for inclusion in the upstream CCL distribution.
+However, Gary Byers has expressed his disinterest in offering and maintaining
+an option for single-threaded startup in the upstream CCL,
+even when I proposed that I could do the porting and maintaining myself.
+
+
+
+Why We Need It
+--------------
 
 CCL by default starts ancillary threads early during initialization,
-which makes any subsequent attempt to use fork (without a prompt exec
-as in run-program) almost guaranteed to lead to massive instability.
+which makes any subsequent attempt to use fork
+almost guaranteed to lead to massive instability
+(unless maybe it's promptly followed by exec, as in run-program,
+without a GC interrupt in between).
 See my blog post:
 	http://fare.livejournal.com/148185.html
 
-However, I have been maintaining this "single-threaded CCL"
-modification that can create an image of CCL that doesn't start these
-ancillary threads (at the cost of having to manually flush output
-streams and of not being able to interrupt computations interactively
-with Ctrl-C).
+However, I have been maintaining this "single-threaded CCL" modification
+that can create an image of CCL that doesn't start these ancillary threads
+(at the cost of having to manually flush output streams and
+of not being able to interrupt computations interactively with Ctrl-C).
 
-I use this single-threaded CCL for parallel build with POIU, and have
-had to update it once in a while as upstream upgrades sometimes break
-it.  I also intend to use it in other situations where fork-based
-concurrency is called fork: pre-forking servers, robust erlang-style
-concurrency, isolating semi-trusted C libraries, etc.
-
-For the record, Gary Byers has expressed his disinterest in offering
-and maintaining an option for single-threaded startup in the upstream
-CCL, even when I proposed that I could do the porting and maintaining
-myself.
+I use this single-threaded CCL for parallel build with POIU and XCVB,
+and have had to update it once in a while
+as upstream upgrades sometimes break it.
+I also intend to use it in other situations
+where fork-based concurrency is called for:
+pre-forking servers, robust erlang-style concurrency,
+isolating semi-trusted C libraries, etc.
