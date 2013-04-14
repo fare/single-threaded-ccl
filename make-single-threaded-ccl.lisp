@@ -1,4 +1,4 @@
-":" ; exec ccl --load "$@" ; exit 42
+":" ; exec ccl --load "$0" "$@" ; exit 42
 
 (in-package :cl-user)
 

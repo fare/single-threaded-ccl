@@ -35,7 +35,7 @@ and when you next save an image, it will start single-threaded.
 Last Tested
 -----------
 
-It was last tested to run with this checkout of CCL, revision 15393.
+It was last tested to run with this checkout of CCL, revision 15791.
         http://svn.clozure.com/publicsvn/openmcl/trunk/linuxx86/ccl
 
 
