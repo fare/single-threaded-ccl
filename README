@@ -11,7 +11,7 @@ Using It
 
 To create a single-threaded ccl, you may::
 
-	${CCL_DEFAULT_DIRECTORY}/lx86cl64 --load make-single-threaded-ccl
+	${CCL_DEFAULT_DIRECTORY}/lx86cl64 --no-init --load make-single-threaded-ccl
 
 
 To test that indeed you can run code single-threaded mode, you may::
