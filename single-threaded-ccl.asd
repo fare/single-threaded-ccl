@@ -9,7 +9,10 @@
 ;;;                                                                  ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defsystem single-threaded-ccl
+(defsystem "single-threaded-ccl"
+  :version "1.0.0"
+  :description "Create a single-threaded CCL image, so you can fork"
+  :author "Francois-Rene Rideau"
   :license "LLGPL 2.1"
   :components ((:file "single-threaded-ccl"))
   :if-feature :clozure)
